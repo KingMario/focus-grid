@@ -560,7 +560,7 @@ dd {
   border-radius: 0;
   background: var(--grid-cell-bg);
   color: var(--ink);
-  font-size: clamp(22px, 6vw, 54px);
+  font-size: clamp(20px, 5vw, 44px);
   font-weight: 850;
   letter-spacing: 0;
   line-height: 1;
@@ -631,6 +631,60 @@ dd {
   70% {
     opacity: 0.82;
     transform: translate(-50%, 1px) scale(1.04);
+  }
+}
+
+.confetti-layer {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti-layer i {
+  position: absolute;
+  top: 0;
+  left: var(--confetti-x);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--confetti-color);
+  opacity: 0;
+  transform: translate3d(-50%, 0, 0) rotate(0deg);
+  animation: confetti-fall var(--confetti-duration) ease-out
+    var(--confetti-delay) forwards;
+}
+
+.confetti-layer i:nth-child(3n) {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.confetti-layer i:nth-child(4n) {
+  width: 6px;
+  height: 16px;
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(-50%, -8px, 0) rotate(0deg);
+  }
+
+  12% {
+    opacity: 0.95;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(
+        calc(-50% + var(--confetti-drift)),
+        var(--confetti-fall),
+        0
+      )
+      rotate(var(--confetti-spin));
   }
 }
 
@@ -971,7 +1025,7 @@ dd {
   }
 
   .grid-cell {
-    font-size: clamp(20px, 9vw, 42px);
+    font-size: clamp(18px, 7vw, 32px);
   }
 }
 
@@ -1122,7 +1176,7 @@ dd {
   }
 
   .grid-cell {
-    font-size: clamp(18px, 7dvh, 32px);
+    font-size: clamp(16px, 6dvh, 28px);
   }
 
   .site-footer {

@@ -187,6 +187,7 @@ const state = {
 const elements = {
   gridBoard: document.querySelector("#gridBoard"),
   gridWrap: document.querySelector("#gridWrap"),
+  confettiLayer: document.querySelector("#confettiLayer"),
   pauseMask: document.querySelector("#pauseMask"),
   settingsButton: document.querySelector("#settingsButton"),
   closeSettingsButton: document.querySelector("#closeSettingsButton"),
@@ -781,6 +782,55 @@ function handleMusicGestureUnlock() {
   }
 }
 
+function shouldReduceMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function clearConfetti() {
+  elements.confettiLayer.replaceChildren();
+}
+
+function burstConfetti(level) {
+  if (shouldReduceMotion()) {
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  const count = level === "expert" ? 38 : 26;
+  const colors = [
+    "var(--accent)",
+    "var(--accent-strong)",
+    "var(--strong-border)",
+    "var(--warning)",
+    "var(--ink)",
+  ];
+
+  elements.resultDialog.append(elements.confettiLayer);
+  clearConfetti();
+
+  for (let index = 0; index < count; index += 1) {
+    const piece = document.createElement("i");
+    const drift = Math.round((Math.random() - 0.5) * 260);
+    const fall = Math.round(220 + Math.random() * 320);
+    const spin = Math.round((Math.random() - 0.5) * 540);
+    const delay = Math.round(Math.random() * 280);
+    const duration = Math.round(1400 + Math.random() * 700);
+    const startX = Math.round(18 + Math.random() * 64);
+
+    piece.style.setProperty("--confetti-x", `${startX}%`);
+    piece.style.setProperty("--confetti-drift", `${drift}px`);
+    piece.style.setProperty("--confetti-fall", `${fall}px`);
+    piece.style.setProperty("--confetti-spin", `${spin}deg`);
+    piece.style.setProperty("--confetti-delay", `${delay}ms`);
+    piece.style.setProperty("--confetti-duration", `${duration}ms`);
+    piece.style.setProperty("--confetti-color", colors[index % colors.length]);
+    fragment.append(piece);
+  }
+
+  elements.confettiLayer.append(fragment);
+  window.setTimeout(clearConfetti, 2600);
+}
+
 function registerServiceWorker() {
   if (!("serviceWorker" in navigator) || window.location.protocol === "file:") {
     return;
@@ -1017,6 +1067,7 @@ function finishGame(result) {
     result === "success" ? t("finishedMessage") : t("timeoutMessage");
   elements.resultBadge.hidden = true;
   elements.resultBadge.textContent = "";
+  let confettiLevel = state.errors === 0 ? "strong" : "";
 
   if (result === "success") {
     const { strong, expert } = getTrainingLine();
@@ -1024,6 +1075,7 @@ function finishGame(result) {
 
     if (elapsedSeconds <= expert) {
       elements.resultDialog.classList.add("result-expert");
+      confettiLevel = "expert";
       elements.resultBadge.hidden = false;
       elements.resultBadge.textContent = t("expertBadge", {
         elapsed: exactSeconds(elapsedMs),
@@ -1031,6 +1083,7 @@ function finishGame(result) {
       });
     } else if (elapsedSeconds <= strong) {
       elements.resultDialog.classList.add("result-strong");
+      confettiLevel = "strong";
       elements.resultBadge.hidden = false;
       elements.resultBadge.textContent = t("strongBadge", {
         elapsed: exactSeconds(elapsedMs),
@@ -1056,6 +1109,10 @@ function finishGame(result) {
   });
 
   elements.resultDialog.showModal();
+
+  if (result === "success" && confettiLevel) {
+    burstConfetti(confettiLevel);
+  }
 }
 
 function applyRecommendedSeconds() {
