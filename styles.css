@@ -873,6 +873,10 @@ dd {
 
   .site-footer {
     width: min(100vw - 20px, 680px);
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: 16px;
+    font-size: 11px;
   }
 
   body.game-focus-scroll .app-shell {
@@ -1102,7 +1106,10 @@ dd {
   }
 
   .site-footer {
-    display: none;
+    grid-column: 1 / -1;
+    width: min(100vw - 20px, 900px);
+    padding: 0 0 8px;
+    font-size: 10px;
   }
 }
 

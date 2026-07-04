@@ -7,7 +7,7 @@ const difficultySeconds = {
 
 const translations = {
   en: {
-    subtitle: "Schulte Grid attention trainer",
+    subtitle: "Find numbers in order. Train focus and visual search.",
     settings: "Settings",
     close: "Close",
     language: "Language",
@@ -67,7 +67,7 @@ const translations = {
     statAvgStep: "Avg step",
   },
   zh: {
-    subtitle: "舒尔特方格专注力训练",
+    subtitle: "于方格中觅数，在顺序中专注",
     settings: "设置",
     close: "关闭",
     language: "语言",

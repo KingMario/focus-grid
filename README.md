@@ -1,6 +1,6 @@
-# Focus Grid
+# Focus Grid / 专注格
 
-A no-framework Schulte Grid attention trainer with countdown levels, guided tutorial mode, language switching, and optional background music.
+A no-framework Schulte Grid attention trainer with countdown levels, guided tutorial mode, language switching, and optional background music. The Chinese product name is 专注格.
 
 ## Run
 
@@ -84,7 +84,7 @@ The footer shows `(c) Copyright Mario Studio 2026-2027` with the Mario Studio fa
 
 ## SEO
 
-The static HTML includes bilingual English and Chinese SEO content for Schulte Grid and 舒尔特方格 search intent:
+The static HTML includes bilingual English and Chinese SEO content for 专注格, Schulte Grid, and 舒尔特方格 search intent:
 
 - Canonical URL: `https://mario.studio/focus-grid/`
 - Meta description, Open Graph, and Twitter summary metadata
@@ -96,10 +96,12 @@ The static HTML includes bilingual English and Chinese SEO content for Schulte G
 
 The page includes a bilingual anti-addiction and disclaimer notice:
 
-- Focus Grid is intended for short attention-training sessions.
+- Focus Grid / 专注格 is intended for short attention-training sessions.
 - Users should avoid long continuous sessions and take regular breaks.
 - Users should stop if they feel eye strain, dizziness, headache, anxiety, or other discomfort.
-- Focus Grid is not a medical, diagnostic, or treatment tool.
+- Users should not use the game while driving, cycling, operating machinery, walking in unsafe environments, or in situations that require continuous attention to their surroundings.
+- Continued use means the user has read and accepted the notice and disclaimer.
+- Focus Grid / 专注格 is not a medical, diagnostic, or treatment tool.
 - Minors should use it with guardian guidance.
 - Game results reflect only current gameplay performance, not medical or learning ability assessment.
 
