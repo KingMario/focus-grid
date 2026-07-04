@@ -7,6 +7,7 @@ const difficultySeconds = {
 
 const translations = {
   en: {
+    appTitle: "focus grid",
     subtitle: "Find numbers in order. Train focus and visual search.",
     settings: "Settings",
     close: "Close",
@@ -48,6 +49,7 @@ const translations = {
     tutorialCompleteText: "Tap here to start the timed round",
     dismissTutorial: "Skip tutorial next time",
     tutorialMode: "Tutorial mode",
+    startTimedGame: "Start game",
     newGameText: "Tap here for a new game",
     pauseTitle: "Paused",
     pauseText: "Tap here to resume",
@@ -67,6 +69,7 @@ const translations = {
     statAvgStep: "Avg step",
   },
   zh: {
+    appTitle: "专注格",
     subtitle: "于方格中觅数，在顺序中专注",
     settings: "设置",
     close: "关闭",
@@ -107,6 +110,7 @@ const translations = {
     tutorialCompleteText: "点击开始正式计时",
     dismissTutorial: "不再显示教程",
     tutorialMode: "教程模式",
+    startTimedGame: "开始游戏",
     newGameText: "点击这里开始新游戏",
     pauseTitle: "已暂停",
     pauseText: "点击这里继续",
@@ -143,6 +147,8 @@ const tightTrainingLineSteps = {
 
 const accidentalDoubleClickMs = 650;
 const previewMs = 3000;
+const distributedGridMaxAttempts = 80;
+const bestEffortShuffleAttempts = 300;
 const preferencesCookieName = "focusGridOptions";
 const tutorialDismissedCookieName = "focusGridTutorialDismissed";
 const preferencesMaxAge = 60 * 60 * 24 * 365;
@@ -210,6 +216,7 @@ const elements = {
   pauseText: document.querySelector("#pauseText"),
   pauseHelp: document.querySelector("#pauseHelp"),
   tutorialMode: document.querySelector("#tutorialMode"),
+  tutorialStartButton: document.querySelector("#tutorialStartButton"),
   tutorialCompleteActions: document.querySelector("#tutorialCompleteActions"),
   tutorialDismissButton: document.querySelector("#tutorialDismissButton"),
   languageButtons: [...document.querySelectorAll("[data-language]")],
@@ -343,10 +350,148 @@ function shuffle(values) {
   return result;
 }
 
+function getCellPosition(index, size) {
+  return {
+    x: index % size,
+    y: Math.floor(index / size),
+  };
+}
+
+function getChebyshevDistance(firstIndex, secondIndex, size) {
+  const first = getCellPosition(firstIndex, size);
+  const second = getCellPosition(secondIndex, size);
+
+  return Math.max(Math.abs(first.x - second.x), Math.abs(first.y - second.y));
+}
+
+function countAdjacentSequentialNumbers(numbers, size) {
+  const indexesByNumber = new Map();
+
+  numbers.forEach((number, index) => {
+    indexesByNumber.set(number, index);
+  });
+
+  let adjacentCount = 0;
+
+  for (let number = 1; number < numbers.length; number += 1) {
+    const currentIndex = indexesByNumber.get(number);
+    const nextIndex = indexesByNumber.get(number + 1);
+
+    if (getChebyshevDistance(currentIndex, nextIndex, size) < 2) {
+      adjacentCount += 1;
+    }
+  }
+
+  return adjacentCount;
+}
+
+function getDistributedPath(size) {
+  const totalCells = size * size;
+  const allIndexes = Array.from({ length: totalCells }, (_, index) => index);
+  const path = [];
+  const used = new Set();
+
+  function getAvailableCandidates(previousIndex) {
+    return allIndexes.filter(
+      (index) =>
+        !used.has(index) &&
+        (previousIndex === undefined ||
+          getChebyshevDistance(previousIndex, index, size) >= 2),
+    );
+  }
+
+  function getOnwardCandidateCount(index) {
+    return allIndexes.filter(
+      (candidate) =>
+        !used.has(candidate) &&
+        candidate !== index &&
+        getChebyshevDistance(index, candidate, size) >= 2,
+    ).length;
+  }
+
+  function getCandidates(previousIndex) {
+    return shuffle(getAvailableCandidates(previousIndex)).sort(
+      (first, second) =>
+        getOnwardCandidateCount(first) - getOnwardCandidateCount(second),
+    );
+  }
+
+  function placeNextNumber() {
+    if (path.length === totalCells) {
+      return true;
+    }
+
+    const previousIndex = path[path.length - 1];
+    const candidates = getCandidates(previousIndex);
+
+    for (const candidate of candidates) {
+      path.push(candidate);
+      used.add(candidate);
+
+      if (placeNextNumber()) {
+        return true;
+      }
+
+      used.delete(candidate);
+      path.pop();
+    }
+
+    return false;
+  }
+
+  return placeNextNumber() ? path : null;
+}
+
+function numbersFromSequentialPath(path) {
+  const numbers = Array(path.length);
+
+  path.forEach((cellIndex, pathIndex) => {
+    numbers[cellIndex] = pathIndex + 1;
+  });
+
+  return numbers;
+}
+
+function generateBestEffortNumbers(size) {
+  const numbers = Array.from({ length: size * size }, (_, index) => index + 1);
+  let bestNumbers = shuffle(numbers);
+  let bestAdjacentCount = countAdjacentSequentialNumbers(bestNumbers, size);
+
+  for (let attempt = 1; attempt < bestEffortShuffleAttempts; attempt += 1) {
+    const candidate = shuffle(numbers);
+    const adjacentCount = countAdjacentSequentialNumbers(candidate, size);
+
+    if (adjacentCount < bestAdjacentCount) {
+      bestNumbers = candidate;
+      bestAdjacentCount = adjacentCount;
+    }
+
+    if (bestAdjacentCount === 0) {
+      break;
+    }
+  }
+
+  return bestNumbers;
+}
+
+function generateDistributedNumbers(size) {
+  if (size < 4) {
+    return generateBestEffortNumbers(size);
+  }
+
+  for (let attempt = 0; attempt < distributedGridMaxAttempts; attempt += 1) {
+    const path = getDistributedPath(size);
+
+    if (path) {
+      return numbersFromSequentialPath(path);
+    }
+  }
+
+  return generateBestEffortNumbers(size);
+}
+
 function generateCells(size) {
-  return shuffle(
-    Array.from({ length: size * size }, (_, index) => index + 1),
-  ).map((number) => ({
+  return generateDistributedNumbers(size).map((number) => ({
     number,
   }));
 }
@@ -734,6 +879,15 @@ function resetRound({ keepGrid = false } = {}) {
   }, previewMs);
 }
 
+function startNormalRoundFromTutorial() {
+  if (state.status !== "tutorial" && state.status !== "tutorialComplete") {
+    return;
+  }
+
+  state.tutorialCompletedThisSession = true;
+  resetRound();
+}
+
 function beginGame() {
   window.clearTimeout(state.previewTimeoutId);
   window.clearInterval(state.previewIntervalId);
@@ -1028,6 +1182,9 @@ function bindEvents() {
     event.stopPropagation();
     saveTutorialDismissed();
     resetRound();
+  });
+  elements.tutorialStartButton.addEventListener("click", () => {
+    startNormalRoundFromTutorial();
   });
 
   elements.languageButtons.forEach((button) => {

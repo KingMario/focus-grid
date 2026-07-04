@@ -36,6 +36,7 @@ The app can also be opened from `index.html` directly, but local serving is the 
 - First-time users enter tutorial mode.
 - Tutorial mode is not timed. The next number flashes and shows a tap hint.
 - Tutorial mistakes are counted in `errors`.
+- Tutorial mode can be exited at any time with `Start game`; this starts a normal round for the current session without changing the tutorial preference.
 - Completing the tutorial shows a mask. Tapping the mask starts a normal timed game; tapping `Skip tutorial next time` skips the tutorial in future sessions.
 - A new normal grid is visible for 3 seconds with a translucent countdown mask.
 - After preview, an opaque ready mask hides the numbers.
@@ -45,6 +46,10 @@ The app can also be opened from `index.html` directly, but local serving is the 
 - A quick accidental double-click on the last correct number is ignored.
 - Finished or timed-out games show a result dialog. Closing it leaves a mask on the grid; tapping the mask starts a new game.
 - The music button toggles the CC0 background track. The off state shows a red circle-slash indicator.
+
+## Grid Generation
+
+Each new grid is shuffled with a spacing constraint: consecutive numbers such as `7` and `8` are not placed in adjacent cells, including diagonal adjacency. This keeps the task focused on visual search instead of letting users follow local number clusters. The `3x3` grid is generated as a best-effort layout because a strict no-adjacent sequence is not possible when the center cell touches every other cell.
 
 ## Status
 
