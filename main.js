@@ -147,8 +147,7 @@ const tightTrainingLineSteps = {
 
 const accidentalDoubleClickMs = 650;
 const previewMs = 3000;
-const distributedGridMaxAttempts = 80;
-const bestEffortShuffleAttempts = 300;
+const balancedShuffleAttempts = 180;
 const preferencesCookieName = "focusGridOptions";
 const tutorialDismissedCookieName = "focusGridTutorialDismissed";
 const preferencesMaxAge = 60 * 60 * 24 * 365;
@@ -364,109 +363,102 @@ function getChebyshevDistance(firstIndex, secondIndex, size) {
   return Math.max(Math.abs(first.x - second.x), Math.abs(first.y - second.y));
 }
 
-function countAdjacentSequentialNumbers(numbers, size) {
+function getIndexesByNumber(numbers) {
   const indexesByNumber = new Map();
 
   numbers.forEach((number, index) => {
     indexesByNumber.set(number, index);
   });
 
-  let adjacentCount = 0;
+  return indexesByNumber;
+}
+
+function getSequentialAdjacencies(numbers, size) {
+  const indexesByNumber = getIndexesByNumber(numbers);
+  const adjacencies = [];
 
   for (let number = 1; number < numbers.length; number += 1) {
     const currentIndex = indexesByNumber.get(number);
     const nextIndex = indexesByNumber.get(number + 1);
 
-    if (getChebyshevDistance(currentIndex, nextIndex, size) < 2) {
-      adjacentCount += 1;
-    }
+    adjacencies.push(getChebyshevDistance(currentIndex, nextIndex, size) < 2);
   }
 
-  return adjacentCount;
+  return adjacencies;
 }
 
-function getDistributedPath(size) {
-  const totalCells = size * size;
-  const allIndexes = Array.from({ length: totalCells }, (_, index) => index);
-  const path = [];
-  const used = new Set();
-
-  function getAvailableCandidates(previousIndex) {
-    return allIndexes.filter(
-      (index) =>
-        !used.has(index) &&
-        (previousIndex === undefined ||
-          getChebyshevDistance(previousIndex, index, size) >= 2),
-    );
-  }
-
-  function getOnwardCandidateCount(index) {
-    return allIndexes.filter(
-      (candidate) =>
-        !used.has(candidate) &&
-        candidate !== index &&
-        getChebyshevDistance(index, candidate, size) >= 2,
-    ).length;
-  }
-
-  function getCandidates(previousIndex) {
-    return shuffle(getAvailableCandidates(previousIndex)).sort(
-      (first, second) =>
-        getOnwardCandidateCount(first) - getOnwardCandidateCount(second),
-    );
-  }
-
-  function placeNextNumber() {
-    if (path.length === totalCells) {
-      return true;
-    }
-
-    const previousIndex = path[path.length - 1];
-    const candidates = getCandidates(previousIndex);
-
-    for (const candidate of candidates) {
-      path.push(candidate);
-      used.add(candidate);
-
-      if (placeNextNumber()) {
-        return true;
-      }
-
-      used.delete(candidate);
-      path.pop();
-    }
-
-    return false;
-  }
-
-  return placeNextNumber() ? path : null;
+function countAdjacentSequentialNumbers(numbers, size) {
+  const adjacencies = getSequentialAdjacencies(numbers, size);
+  return adjacencies.filter(Boolean).length;
 }
 
-function numbersFromSequentialPath(path) {
-  const numbers = Array(path.length);
+function countClusteredSequentialTriples(adjacencies) {
+  let clusteredTriples = 0;
 
-  path.forEach((cellIndex, pathIndex) => {
-    numbers[cellIndex] = pathIndex + 1;
+  for (let index = 0; index < adjacencies.length - 1; index += 1) {
+    if (adjacencies[index] && adjacencies[index + 1]) {
+      clusteredTriples += 1;
+    }
+  }
+
+  return clusteredTriples;
+}
+
+function getLongestSequentialAdjacencyRun(adjacencies) {
+  let longestRun = 0;
+  let currentRun = 0;
+
+  adjacencies.forEach((isAdjacent) => {
+    if (isAdjacent) {
+      currentRun += 1;
+      longestRun = Math.max(longestRun, currentRun);
+      return;
+    }
+
+    currentRun = 0;
   });
 
-  return numbers;
+  return longestRun;
 }
 
-function generateBestEffortNumbers(size) {
+function getExpectedAdjacentSequentialCount(size) {
+  const totalCells = size * size;
+  const adjacentCellPairs = 2 * (size - 1) * (2 * size - 1);
+  const allCellPairs = (totalCells * (totalCells - 1)) / 2;
+  const adjacentProbability = adjacentCellPairs / allCellPairs;
+
+  return Math.round((totalCells - 1) * adjacentProbability);
+}
+
+function scoreGridNumbers(numbers, size) {
+  const adjacencies = getSequentialAdjacencies(numbers, size);
+  const adjacentCount = countAdjacentSequentialNumbers(numbers, size);
+  const expectedAdjacentCount = getExpectedAdjacentSequentialCount(size);
+  const clusteredTriples = countClusteredSequentialTriples(adjacencies);
+  const longestRun = getLongestSequentialAdjacencyRun(adjacencies);
+
+  return (
+    Math.abs(adjacentCount - expectedAdjacentCount) * 4 +
+    clusteredTriples * 14 +
+    Math.max(0, longestRun - 1) * 10
+  );
+}
+
+function generateBalancedNumbers(size) {
   const numbers = Array.from({ length: size * size }, (_, index) => index + 1);
   let bestNumbers = shuffle(numbers);
-  let bestAdjacentCount = countAdjacentSequentialNumbers(bestNumbers, size);
+  let bestScore = scoreGridNumbers(bestNumbers, size);
 
-  for (let attempt = 1; attempt < bestEffortShuffleAttempts; attempt += 1) {
+  for (let attempt = 1; attempt < balancedShuffleAttempts; attempt += 1) {
     const candidate = shuffle(numbers);
-    const adjacentCount = countAdjacentSequentialNumbers(candidate, size);
+    const score = scoreGridNumbers(candidate, size);
 
-    if (adjacentCount < bestAdjacentCount) {
+    if (score < bestScore) {
       bestNumbers = candidate;
-      bestAdjacentCount = adjacentCount;
+      bestScore = score;
     }
 
-    if (bestAdjacentCount === 0) {
+    if (bestScore === 0) {
       break;
     }
   }
@@ -474,24 +466,8 @@ function generateBestEffortNumbers(size) {
   return bestNumbers;
 }
 
-function generateDistributedNumbers(size) {
-  if (size < 4) {
-    return generateBestEffortNumbers(size);
-  }
-
-  for (let attempt = 0; attempt < distributedGridMaxAttempts; attempt += 1) {
-    const path = getDistributedPath(size);
-
-    if (path) {
-      return numbersFromSequentialPath(path);
-    }
-  }
-
-  return generateBestEffortNumbers(size);
-}
-
 function generateCells(size) {
-  return generateDistributedNumbers(size).map((number) => ({
+  return generateBalancedNumbers(size).map((number) => ({
     number,
   }));
 }

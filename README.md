@@ -53,7 +53,7 @@ Service workers only run on secure origins or localhost. Use `http://127.0.0.1:5
 
 ## Grid Generation
 
-Each new grid is shuffled with a spacing constraint: consecutive numbers such as `7` and `8` are not placed in adjacent cells, including diagonal adjacency. This keeps the task focused on visual search instead of letting users follow local number clusters. The `3x3` grid is generated as a best-effort layout because a strict no-adjacent sequence is not possible when the center cell touches every other cell.
+Each new grid is generated from random shuffles and selected with a light scoring rule. Consecutive numbers are allowed to be adjacent at a natural random rate, while obvious shortcuts such as local `7-8-9` clusters or long adjacent number chains are penalized. This keeps the table random-looking without creating a predictable rule that lets players exclude every cell around the last number.
 
 ## Status
 
