@@ -911,6 +911,7 @@ dd {
   height: 18px;
 }
 
+.project-link,
 .github-link {
   display: inline-flex;
   align-items: center;
@@ -919,10 +920,12 @@ dd {
   text-decoration: none;
 }
 
+.project-link:hover,
 .github-link:hover {
   color: var(--text);
 }
 
+.project-link:focus-visible,
 .github-link:focus-visible {
   border-radius: 4px;
   outline: 2px solid var(--accent);
