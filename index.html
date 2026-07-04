@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Focus Grid</title>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell" aria-labelledby="appTitle">
+      <header class="topbar">
+        <div class="title-block">
+          <div class="title-line">
+            <h1 id="appTitle">Focus Grid</h1>
+            <div class="title-controls">
+              <div class="language-picker" id="languagePicker">
+                <div
+                  class="language-options"
+                  id="languageOptions"
+                  role="radiogroup"
+                  aria-label="Language"
+                  data-i18n-aria="language"
+                  hidden
+                >
+                  <button
+                    class="language-choice"
+                    type="button"
+                    data-language="en"
+                    role="radio"
+                    aria-checked="true"
+                    data-i18n-aria="chooseEnglish"
+                    title="English"
+                  >
+                    EN
+                  </button>
+                  <button
+                    class="language-choice"
+                    type="button"
+                    data-language="zh"
+                    role="radio"
+                    data-i18n-aria="chooseChinese"
+                    title="中文"
+                  >
+                    中
+                  </button>
+                </div>
+                <button
+                  class="icon-button language-toggle"
+                  type="button"
+                  id="languageToggle"
+                  aria-controls="languageOptions"
+                  aria-expanded="false"
+                  data-i18n-aria="language"
+                  title="Language"
+                >
+                  <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M2 12h20" />
+                    <path d="M12 2a15.3 15.3 0 0 1 0 20" />
+                    <path d="M12 2a15.3 15.3 0 0 0 0 20" />
+                  </svg>
+                </button>
+              </div>
+              <button
+                class="icon-button music-button"
+                type="button"
+                id="musicButton"
+                aria-pressed="true"
+                data-i18n-aria="music"
+                title="Music"
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M9 18V5l12-2v13" />
+                  <circle cx="6" cy="18" r="3" />
+                  <circle cx="18" cy="16" r="3" />
+                </svg>
+              </button>
+              <button
+                class="icon-button settings-button"
+                type="button"
+                id="settingsButton"
+                aria-controls="settingsPanel"
+                aria-expanded="false"
+                data-i18n-aria="settings"
+                title="Settings"
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                  <path
+                    d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.04.04a2.1 2.1 0 0 1-2.97 2.97l-.04-.04a1.8 1.8 0 0 0-1.98-.36 1.8 1.8 0 0 0-1.08 1.65V21a2.1 2.1 0 0 1-4.2 0v-.06a1.8 1.8 0 0 0-1.08-1.65 1.8 1.8 0 0 0-1.98.36l-.04.04a2.1 2.1 0 0 1-2.97-2.97l.04-.04A1.8 1.8 0 0 0 4.6 15a1.8 1.8 0 0 0-1.65-1.08H3a2.1 2.1 0 0 1 0-4.2h.06A1.8 1.8 0 0 0 4.71 8.64a1.8 1.8 0 0 0-.36-1.98l-.04-.04a2.1 2.1 0 0 1 2.97-2.97l.04.04a1.8 1.8 0 0 0 1.98.36A1.8 1.8 0 0 0 10.38 2.4V2a2.1 2.1 0 0 1 4.2 0v.06a1.8 1.8 0 0 0 1.08 1.65 1.8 1.8 0 0 0 1.98-.36l.04-.04a2.1 2.1 0 0 1 2.97 2.97l-.04.04a1.8 1.8 0 0 0-.36 1.98 1.8 1.8 0 0 0 1.65 1.08H21a2.1 2.1 0 0 1 0 4.2h-.06A1.8 1.8 0 0 0 19.4 15z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <p data-i18n="subtitle">Schulte Grid attention trainer</p>
+        </div>
+      </header>
+
+      <section class="game-layout">
+        <div class="settings-backdrop" id="settingsBackdrop" hidden></div>
+        <aside
+          class="control-panel"
+          id="settingsPanel"
+          aria-label="Game settings"
+          data-i18n-aria="gameSettings"
+        >
+          <div class="settings-panel-header">
+            <strong data-i18n="settings">Settings</strong>
+            <button
+              class="icon-button close-settings-button"
+              type="button"
+              id="closeSettingsButton"
+              data-i18n-aria="close"
+              title="Close"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M9 9l6 6M15 9l-6 6" />
+              </svg>
+            </button>
+          </div>
+
+          <label class="checkbox-field" for="dismissTutorialInput">
+            <input id="dismissTutorialInput" type="checkbox" />
+            <span data-i18n="dismissTutorial">Don't show tutorial again</span>
+          </label>
+
+          <div class="control-group">
+            <div class="control-label" data-i18n="grid">Grid</div>
+            <div
+              class="segmented"
+              role="radiogroup"
+              aria-label="Grid size"
+              data-i18n-aria="gridSize"
+            >
+              <button type="button" data-size="3" role="radio">3x3</button>
+              <button type="button" data-size="4" role="radio">4x4</button>
+              <button
+                type="button"
+                data-size="5"
+                role="radio"
+                aria-checked="true"
+              >
+                5x5
+              </button>
+              <button type="button" data-size="6" role="radio">6x6</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label" data-i18n="difficulty">Difficulty</div>
+            <div
+              class="segmented difficulty-control"
+              role="radiogroup"
+              aria-label="Difficulty"
+              data-i18n-aria="difficultyOptions"
+            >
+              <button
+                type="button"
+                data-difficulty="easy"
+                data-i18n="easy"
+                role="radio"
+              >
+                Easy
+              </button>
+              <button
+                type="button"
+                data-difficulty="medium"
+                role="radio"
+                aria-checked="true"
+                data-i18n="medium"
+              >
+                Medium
+              </button>
+              <button
+                type="button"
+                data-difficulty="hard"
+                data-i18n="hard"
+                role="radio"
+              >
+                Hard
+              </button>
+              <button
+                type="button"
+                data-difficulty="expert"
+                data-i18n="expert"
+                role="radio"
+              >
+                Expert
+              </button>
+            </div>
+          </div>
+
+          <label class="seconds-field" for="secondsInput">
+            <span data-i18n="countdownSeconds">Countdown seconds</span>
+            <input
+              id="secondsInput"
+              type="number"
+              inputmode="numeric"
+              min="3"
+              max="300"
+              value="35"
+            />
+          </label>
+
+          <div class="benchmark-box">
+            <div class="benchmark-title" id="benchmarkTitle">
+              5x5 Medium training line
+            </div>
+            <dl>
+              <div>
+                <dt data-i18n="challenge">Challenge</dt>
+                <dd id="benchmarkChallenge">35s</dd>
+              </div>
+              <div>
+                <dt data-i18n="strong">Strong</dt>
+                <dd id="benchmarkStrong">30s</dd>
+              </div>
+              <div>
+                <dt data-i18n="expert">Expert</dt>
+                <dd id="benchmarkExpert">25s</dd>
+              </div>
+            </dl>
+          </div>
+        </aside>
+
+        <section
+          class="play-surface"
+          aria-label="Schulte grid game"
+          data-i18n-aria="schulteGridGame"
+        >
+          <section
+            class="status-strip"
+            aria-label="Game status"
+            data-i18n-aria="gameStatus"
+          >
+            <div class="status-item">
+              <strong
+                id="progressText"
+                aria-label="Progress"
+                data-i18n-aria="progress"
+                >0/25</strong
+              >
+            </div>
+            <div class="status-item error-item">
+              <strong
+                id="errorText"
+                aria-label="Errors"
+                data-i18n-aria="errors"
+                hidden
+                >× 0</strong
+              >
+            </div>
+            <div class="status-item timer-item">
+              <strong id="timerText" aria-label="Time" data-i18n-aria="time"
+                >00:35</strong
+              >
+            </div>
+          </section>
+          <div class="grid-wrap" id="gridWrap">
+            <div
+              class="grid-board"
+              id="gridBoard"
+              role="grid"
+              aria-label="Schulte grid"
+              data-i18n-aria="schulteGrid"
+            ></div>
+            <div
+              class="pause-mask"
+              id="pauseMask"
+              role="button"
+              tabindex="-1"
+              hidden
+            >
+              <strong id="pauseTitle">Paused</strong>
+              <span id="pauseText">Tap here to resume</span>
+              <span class="mask-help" id="pauseHelp"></span>
+              <div class="mask-actions" id="tutorialCompleteActions" hidden>
+                <button
+                  class="ghost-button tutorial-dismiss-button"
+                  type="button"
+                  id="tutorialDismissButton"
+                  data-i18n="dismissTutorial"
+                >
+                  Don't show tutorial again
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="tutorial-mode" id="tutorialMode" hidden>
+            <div class="tutorial-mode-label" data-i18n="tutorialMode">
+              Tutorial
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer
+      class="site-footer"
+      aria-label="Copyright"
+      data-i18n-aria="copyright"
+    >
+      <img src="favicon.ico" alt="" aria-hidden="true" />
+      <span>(c) Copyright Mario Studio 2026-2027</span>
+    </footer>
+
+    <dialog
+      class="result-dialog"
+      id="resultDialog"
+      aria-labelledby="resultTitle"
+    >
+      <div class="dialog-body">
+        <button
+          class="icon-button result-close-button"
+          type="button"
+          id="closeResultButton"
+          data-i18n-aria="close"
+          title="Close"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9 9l6 6M15 9l-6 6" />
+          </svg>
+        </button>
+        <h2 id="resultTitle">Result</h2>
+        <p id="resultMessage"></p>
+        <div class="result-badge" id="resultBadge" hidden></div>
+        <dl class="result-stats" id="resultStats"></dl>
+      </div>
+    </dialog>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
