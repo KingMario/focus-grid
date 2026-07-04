@@ -78,7 +78,13 @@ The training line uses the selected countdown as `Challenge`, then derives `Stro
 
 ## Branding
 
-The footer shows `(c) Copyright Mario Studio 2026-2027` with the Mario Studio favicon.
+The footer shows `(c) Copyright Mario Studio 2026-2027` with the Mario Studio favicon and a link to the GitHub repository:
+
+<https://github.com/KingMario/focus-grid>
+
+## License
+
+MIT License. See `LICENSE`.
 
 ## Music Credit
 
