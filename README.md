@@ -92,6 +92,17 @@ The static HTML includes bilingual English and Chinese SEO content for Schulte G
 - JSON-LD `WebApplication` structured data
 - Subsite sitemap: `https://mario.studio/focus-grid/sitemap.xml`
 
+## Healthy Use And Disclaimer
+
+The page includes a bilingual anti-addiction and disclaimer notice:
+
+- Focus Grid is intended for short attention-training sessions.
+- Users should avoid long continuous sessions and take regular breaks.
+- Users should stop if they feel eye strain, dizziness, headache, anxiety, or other discomfort.
+- Focus Grid is not a medical, diagnostic, or treatment tool.
+- Minors should use it with guardian guidance.
+- Game results reflect only current gameplay performance, not medical or learning ability assessment.
+
 ## License
 
 MIT License. See `LICENSE`.
