@@ -1,6 +1,6 @@
 # Focus Grid / 专注格
 
-A no-framework Schulte Grid attention trainer with countdown levels, guided tutorial mode, language switching, and optional background music. The Chinese product name is 专注格.
+A no-framework Schulte Grid attention trainer with countdown levels, guided tutorial mode, language switching, optional background music, offline caching, and installable PWA metadata. The Chinese product name is 专注格.
 
 ## Run
 
@@ -14,6 +14,8 @@ Then open `http://127.0.0.1:5173`.
 
 The app can also be opened from `index.html` directly, but local serving is the recommended way to test browser behavior consistently.
 
+Service workers only run on secure origins or localhost. Use `http://127.0.0.1:5173` for local PWA testing, or the hosted GitHub Pages URL for mobile installation.
+
 ## Defaults
 
 - Grid: `5x5`
@@ -22,6 +24,8 @@ The app can also be opened from `index.html` directly, but local serving is the 
 - Language: English, switchable from the globe button beside the title
 - Theme: follows the system light or dark theme
 - Options are saved in cookies.
+- PWA metadata is provided through `manifest.webmanifest`.
+- Core files are cached by `sw.js` for repeat visits and offline fallback.
 
 ## Settings
 
@@ -86,6 +90,17 @@ The training line uses the selected countdown as `Challenge`, then derives `Stro
 The footer shows `(c) Copyright Mario Studio 2026-2027` with the Mario Studio favicon and a link to the GitHub repository:
 
 <https://github.com/KingMario/focus-grid>
+
+## PWA And Offline Cache
+
+The app includes installable PWA metadata and a service worker:
+
+- `manifest.webmanifest` defines the app name, start URL, standalone display mode, theme color, and install icons.
+- `assets/icon.svg`, `assets/icon-180.png`, `assets/icon-192.png`, and `assets/icon-512.png` provide the install icons.
+- `sw.js` caches the app shell, icons, OG image, favicon, and background music.
+- Navigation requests fall back to the cached `index.html` when offline.
+- On Android Chrome, the hosted page can be installed from the browser menu or install prompt.
+- On iOS Safari, use Share > Add to Home Screen to create the home-screen app link.
 
 ## SEO
 

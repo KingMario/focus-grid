@@ -809,6 +809,16 @@ function handleMusicGestureUnlock() {
   }
 }
 
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator) || window.location.protocol === "file:") {
+    return;
+  }
+
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+
 function renderGrid() {
   elements.gridBoard.innerHTML = "";
   elements.gridBoard.style.gridTemplateColumns = `repeat(${state.size}, minmax(0, 1fr))`;
@@ -1281,6 +1291,7 @@ function init() {
   loadPreferences();
   state.cells = generateCells(state.size);
   bindEvents();
+  registerServiceWorker();
   applyTranslations();
   resetRound({ keepGrid: true });
   updateSettingsPanelInteractivity();
