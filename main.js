@@ -769,8 +769,12 @@ function stopMusic({ rewind = false } = {}) {
   }
 }
 
+function isMusicPlaybackStatus() {
+  return state.status === "running" || state.status === "tutorial";
+}
+
 function startMusic({ restart = false } = {}) {
-  if (!state.musicEnabled || state.status !== "running") {
+  if (!state.musicEnabled || !isMusicPlaybackStatus()) {
     return;
   }
 
@@ -797,6 +801,12 @@ function toggleMusic() {
   }
 
   stopMusic();
+}
+
+function handleMusicGestureUnlock() {
+  if (state.status === "tutorial") {
+    startMusic();
+  }
 }
 
 function renderGrid() {
@@ -857,9 +867,11 @@ function resetRound({ keepGrid = false } = {}) {
   updateStatus();
   updateTrainingLine();
   if (useTutorial) {
+    startMusic({ restart: true });
     return;
   }
 
+  stopMusic({ rewind: true });
   state.previewIntervalId = window.setInterval(() => {
     if (state.status !== "preview") {
       window.clearInterval(state.previewIntervalId);
@@ -952,6 +964,10 @@ function handleCellClick(event) {
     return;
   }
 
+  if (state.status === "tutorial") {
+    startMusic();
+  }
+
   const clickedNumber = Number(button.dataset.number);
   const now = performance.now();
 
@@ -977,6 +993,7 @@ function handleCellClick(event) {
     if (state.status === "tutorial") {
       state.tutorialCompletedThisSession = true;
       state.status = "tutorialComplete";
+      stopMusic({ rewind: true });
       renderGrid();
       updateStatus();
       return;
@@ -1153,6 +1170,7 @@ function activatePauseMask() {
 
 function bindEvents() {
   document.addEventListener("pointerdown", handleOutsidePointerDown, true);
+  document.addEventListener("pointerdown", handleMusicGestureUnlock, true);
   elements.settingsButton.addEventListener("click", openSettings);
   elements.closeSettingsButton.addEventListener("click", closeSettings);
   elements.settingsBackdrop.addEventListener("click", closeSettings);
@@ -1232,6 +1250,8 @@ function bindEvents() {
   });
 
   window.addEventListener("keydown", (event) => {
+    handleMusicGestureUnlock();
+
     if (event.key === "Escape" && state.settingsOpen) {
       closeSettings();
       return;
