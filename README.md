@@ -82,6 +82,16 @@ The footer shows `(c) Copyright Mario Studio 2026-2027` with the Mario Studio fa
 
 <https://github.com/KingMario/focus-grid>
 
+## SEO
+
+The static HTML includes bilingual English and Chinese SEO content for Schulte Grid and 舒尔特方格 search intent:
+
+- Canonical URL: `https://mario.studio/focus-grid/`
+- Meta description, Open Graph, and Twitter summary metadata
+- Visible English and Chinese about text below the game
+- JSON-LD `WebApplication` structured data
+- Subsite sitemap: `https://mario.studio/focus-grid/sitemap.xml`
+
 ## License
 
 MIT License. See `LICENSE`.
