@@ -173,6 +173,7 @@ const state = {
   settingsReturnFocus: null,
   lastCorrectNumber: 0,
   lastCorrectAt: 0,
+  tapFeedbackCell: null,
 };
 
 const elements = {
@@ -944,6 +945,37 @@ function handleOutsidePointerDown(event) {
   }
 }
 
+function getInteractiveGridCell(event) {
+  const button = event.target.closest(".grid-cell");
+
+  if (!button || (state.status !== "running" && state.status !== "tutorial")) {
+    return null;
+  }
+
+  return button;
+}
+
+function showGridTapFeedback(event) {
+  const button = getInteractiveGridCell(event);
+
+  if (!button) {
+    return;
+  }
+
+  clearGridTapFeedback();
+  state.tapFeedbackCell = button;
+  button.classList.add("tap-feedback");
+}
+
+function clearGridTapFeedback() {
+  if (!state.tapFeedbackCell) {
+    return;
+  }
+
+  state.tapFeedbackCell.classList.remove("tap-feedback");
+  state.tapFeedbackCell = null;
+}
+
 function activatePauseMask() {
   if (state.status === "tutorialComplete") {
     resetRound();
@@ -976,6 +1008,10 @@ function bindEvents() {
     toggleLanguageMenu();
   });
   elements.musicButton.addEventListener("click", toggleMusic);
+  elements.gridBoard.addEventListener("pointerdown", showGridTapFeedback);
+  elements.gridBoard.addEventListener("pointerup", clearGridTapFeedback);
+  elements.gridBoard.addEventListener("pointercancel", clearGridTapFeedback);
+  elements.gridBoard.addEventListener("pointerleave", clearGridTapFeedback);
   elements.gridBoard.addEventListener("click", handleCellClick);
   elements.pauseMask.addEventListener("click", activatePauseMask);
   elements.pauseMask.addEventListener("keydown", (event) => {
