@@ -147,7 +147,8 @@ const tightTrainingLineSteps = {
 
 const accidentalDoubleClickMs = 650;
 const previewMs = 3000;
-const balancedShuffleAttempts = 180;
+const balancedShuffleAttempts = 600;
+const maxAdjacentSequentialPairs = 3;
 const preferencesCookieName = "focusGridOptions";
 const tutorialDismissedCookieName = "focusGridTutorialDismissed";
 const preferencesMaxAge = 60 * 60 * 24 * 365;
@@ -421,26 +422,21 @@ function getLongestSequentialAdjacencyRun(adjacencies) {
   return longestRun;
 }
 
-function getExpectedAdjacentSequentialCount(size) {
-  const totalCells = size * size;
-  const adjacentCellPairs = 2 * (size - 1) * (2 * size - 1);
-  const allCellPairs = (totalCells * (totalCells - 1)) / 2;
-  const adjacentProbability = adjacentCellPairs / allCellPairs;
-
-  return Math.round((totalCells - 1) * adjacentProbability);
-}
-
 function scoreGridNumbers(numbers, size) {
   const adjacencies = getSequentialAdjacencies(numbers, size);
   const adjacentCount = countAdjacentSequentialNumbers(numbers, size);
-  const expectedAdjacentCount = getExpectedAdjacentSequentialCount(size);
+  const adjacentOverflow = Math.max(
+    0,
+    adjacentCount - maxAdjacentSequentialPairs,
+  );
   const clusteredTriples = countClusteredSequentialTriples(adjacencies);
   const longestRun = getLongestSequentialAdjacencyRun(adjacencies);
 
   return (
-    Math.abs(adjacentCount - expectedAdjacentCount) * 4 +
-    clusteredTriples * 14 +
-    Math.max(0, longestRun - 1) * 10
+    adjacentOverflow * 1000 +
+    Math.abs(adjacentCount - maxAdjacentSequentialPairs) * 4 +
+    clusteredTriples * 60 +
+    Math.max(0, longestRun - 1) * 40
   );
 }
 

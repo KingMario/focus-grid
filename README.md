@@ -53,7 +53,7 @@ Service workers only run on secure origins or localhost. Use `http://127.0.0.1:5
 
 ## Grid Generation
 
-Each new grid is generated from random shuffles and selected with a light scoring rule. Consecutive numbers are allowed to be adjacent at a natural random rate, while obvious shortcuts such as local `7-8-9` clusters or long adjacent number chains are penalized. This keeps the table random-looking without creating a predictable rule that lets players exclude every cell around the last number.
+Each new grid is generated from random shuffles and selected with a light scoring rule. At most three consecutive-number pairs may be adjacent, including diagonal adjacency. Obvious shortcuts such as local `7-8-9` clusters or long adjacent number chains are penalized, while a small number of adjacent pairs is allowed so the table does not create a predictable rule that lets players exclude every cell around the last number.
 
 ## Status
 
