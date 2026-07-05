@@ -1,4 +1,4 @@
-const CACHE_NAME = "focus-grid-v12";
+const CACHE_NAME = "focus-grid-v13";
 const APP_SHELL_URLS = [
   "./",
   "./index.html",

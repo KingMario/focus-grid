@@ -193,10 +193,35 @@ h1 {
 }
 
 .language-picker {
-  position: relative;
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   flex: 0 0 auto;
-  align-items: center;
+  width: 112px;
+  min-height: 42px;
+  padding: 4px;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  gap: 2px;
+}
+
+.language-choice {
+  display: inline-grid;
+  min-width: 0;
+  min-height: 32px;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.language-choice[aria-checked="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .title-controls {
@@ -205,51 +230,6 @@ h1 {
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
-}
-
-.language-options {
-  position: absolute;
-  z-index: 12;
-  top: calc(100% + 8px);
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 4px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  box-shadow: var(--popover-shadow);
-}
-
-.language-options[hidden] {
-  display: none;
-}
-
-.language-choice {
-  display: inline-grid;
-  width: 42px;
-  height: 38px;
-  place-items: center;
-  border: 1px solid var(--border-soft);
-  border-radius: 7px;
-  background: var(--surface-strong);
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 850;
-}
-
-.language-choice[aria-checked="true"] {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--on-accent);
-}
-
-.language-toggle {
-  width: 42px;
-  min-width: 42px;
-  height: 42px;
-  min-height: 42px;
 }
 
 .settings-button,
@@ -1119,7 +1099,6 @@ dd {
     flex-direction: column;
   }
 
-  .language-toggle,
   .icon-button {
     width: 38px;
     min-width: 38px;
@@ -1127,9 +1106,15 @@ dd {
     min-height: 38px;
   }
 
-  .language-options {
-    top: 0;
-    right: calc(100% + 6px);
+  .language-picker {
+    width: 92px;
+    min-height: 38px;
+    padding: 3px;
+  }
+
+  .language-choice {
+    min-height: 28px;
+    font-size: 13px;
   }
 
   .settings-button {

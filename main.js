@@ -205,7 +205,6 @@ const state = {
   totalPausedMs: 0,
   rafId: 0,
   settingsOpen: false,
-  languageMenuOpen: false,
   musicEnabled: true,
   musicAudio: null,
   successAudio: null,
@@ -228,9 +227,6 @@ const elements = {
   closeSettingsButton: document.querySelector("#closeSettingsButton"),
   settingsBackdrop: document.querySelector("#settingsBackdrop"),
   settingsPanel: document.querySelector("#settingsPanel"),
-  languagePicker: document.querySelector("#languagePicker"),
-  languageToggle: document.querySelector("#languageToggle"),
-  languageOptions: document.querySelector("#languageOptions"),
   musicButton: document.querySelector("#musicButton"),
   timerText: document.querySelector("#timerText"),
   progressText: document.querySelector("#progressText"),
@@ -338,6 +334,17 @@ function isValidLanguage(language) {
   return Object.hasOwn(translations, language);
 }
 
+function getSystemLanguage() {
+  const languages =
+    navigator.languages && navigator.languages.length
+      ? navigator.languages
+      : [navigator.language];
+
+  return languages.some((language) => language.toLowerCase().startsWith("zh"))
+    ? "zh"
+    : "en";
+}
+
 function isValidSize(size) {
   return Object.hasOwn(difficultySeconds, size);
 }
@@ -372,6 +379,8 @@ function loadPreferences() {
 
   if (isValidLanguage(preferences.language)) {
     state.language = preferences.language;
+  } else {
+    state.language = getSystemLanguage();
   }
 
   if (isValidSize(preferences.size)) {
@@ -804,27 +813,6 @@ function closeSettings() {
   }
 
   updateSettingsPanelInteractivity();
-}
-
-function openLanguageMenu() {
-  state.languageMenuOpen = true;
-  elements.languageOptions.hidden = false;
-  elements.languageToggle.setAttribute("aria-expanded", "true");
-}
-
-function closeLanguageMenu() {
-  state.languageMenuOpen = false;
-  elements.languageOptions.hidden = true;
-  elements.languageToggle.setAttribute("aria-expanded", "false");
-}
-
-function toggleLanguageMenu() {
-  if (state.languageMenuOpen) {
-    closeLanguageMenu();
-    return;
-  }
-
-  openLanguageMenu();
 }
 
 function ensureMusicAudio() {
@@ -1379,7 +1367,6 @@ function selectLanguage(language) {
   renderGrid();
   updateTrainingLine();
   savePreferences();
-  closeLanguageMenu();
 }
 
 function selectHealthReminder(minutes) {
@@ -1471,10 +1458,6 @@ function bindEvents() {
   elements.settingsPanel.addEventListener("click", (event) => {
     event.stopPropagation();
   });
-  elements.languageToggle.addEventListener("click", (event) => {
-    event.stopPropagation();
-    toggleLanguageMenu();
-  });
   elements.musicButton.addEventListener("click", toggleMusic);
   elements.gridBoard.addEventListener("pointerdown", showGridTapFeedback);
   elements.gridBoard.addEventListener("pointerup", clearGridTapFeedback);
@@ -1504,15 +1487,6 @@ function bindEvents() {
       event.stopPropagation();
       selectLanguage(button.dataset.language);
     });
-  });
-
-  document.addEventListener("click", (event) => {
-    if (
-      state.languageMenuOpen &&
-      !elements.languagePicker.contains(event.target)
-    ) {
-      closeLanguageMenu();
-    }
   });
 
   elements.sizeButtons.forEach((button) => {
@@ -1572,12 +1546,6 @@ function bindEvents() {
 
     if (event.key === "Escape" && state.settingsOpen) {
       closeSettings();
-      return;
-    }
-
-    if (event.key === "Escape" && state.languageMenuOpen) {
-      closeLanguageMenu();
-      elements.languageToggle.focus();
       return;
     }
 

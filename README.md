@@ -21,7 +21,7 @@ Service workers only run on secure origins or localhost. Use `http://127.0.0.1:5
 - Grid: `5x5`
 - Difficulty: `Medium`
 - Countdown: `35s`
-- Language: English, switchable from the globe button beside the title
+- Language: follows the browser/system language on first visit, then stays switchable from the `中 / EN` toggle beside the title
 - Healthy-use reminder: `10` minutes
 - Theme: follows the system light or dark theme
 - Options are saved in cookies.
