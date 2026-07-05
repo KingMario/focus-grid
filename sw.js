@@ -1,9 +1,9 @@
-const CACHE_NAME = "focus-grid-v13";
+const CACHE_NAME = "focus-grid-v14";
 const APP_SHELL_URLS = [
   "./",
   "./index.html",
-  "./styles.css",
-  "./main.js",
+  "./styles.css?v=14",
+  "./main.js?v=14",
   "./manifest.webmanifest",
   "./favicon.ico",
   "./assets/icon.svg",
@@ -45,6 +45,25 @@ self.addEventListener("fetch", (event) => {
   const requestUrl = new URL(event.request.url);
 
   if (requestUrl.origin !== self.location.origin) {
+    return;
+  }
+
+  if (requestUrl.searchParams.has("v")) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (!response || response.status !== 200) {
+            return response;
+          }
+
+          const responseClone = response.clone();
+          caches
+            .open(CACHE_NAME)
+            .then((cache) => cache.put(event.request, responseClone));
+          return response;
+        })
+        .catch(() => caches.match(event.request)),
+    );
     return;
   }
 

@@ -104,6 +104,7 @@ The app includes installable PWA metadata and a service worker:
 - `manifest.webmanifest` defines the app name, start URL, standalone display mode, theme color, and install icons.
 - `assets/icon.svg`, `assets/icon-180.png`, `assets/icon-192.png`, and `assets/icon-512.png` provide the install icons.
 - `sw.js` caches the app shell, icons, OG image, favicon, background music, and success applause effect.
+- `main.js` and `styles.css` are loaded with versioned query strings so a refreshed HTML document does not reuse stale script or style resources from an older service-worker cache.
 - Navigation requests fall back to the cached `index.html` when offline.
 - On Android Chrome, the hosted page can be installed from the browser menu or install prompt.
 - On iOS Safari, use Share > Add to Home Screen to create the home-screen app link.

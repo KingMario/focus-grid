@@ -176,6 +176,7 @@ const maxAdjacentSequentialPairs = 3;
 const healthReminderOptions = [0, 5, 10, 15, 20];
 const healthBreakMs = 2 * 60 * 1000;
 const continueTrainingSnoozeMs = 5 * 60 * 1000;
+const appVersion = "14";
 const preferencesCookieName = "focusGridOptions";
 const tutorialDismissedCookieName = "focusGridTutorialDismissed";
 const preferencesMaxAge = 60 * 60 * 24 * 365;
@@ -217,6 +218,14 @@ const state = {
 };
 
 let shouldReloadForServiceWorkerUpdate = false;
+
+function rememberAppVersion() {
+  try {
+    window.localStorage.setItem("focusGridAppVersion", appVersion);
+  } catch {
+    // Storage can be unavailable in private browsing.
+  }
+}
 
 const elements = {
   gridBoard: document.querySelector("#gridBoard"),
@@ -1564,6 +1573,7 @@ function bindEvents() {
 }
 
 function init() {
+  rememberAppVersion();
   loadPreferences();
   state.cells = generateCells(state.size);
   bindEvents();
