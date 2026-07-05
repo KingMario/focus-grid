@@ -1,6 +1,6 @@
 # Focus Grid / 专注格
 
-A no-framework Schulte Grid attention trainer with countdown levels, guided tutorial mode, language switching, optional background music, offline caching, and installable PWA metadata. The Chinese product name is 专注格.
+A no-framework Schulte Grid attention trainer with countdown levels, guided tutorial mode, configurable healthy-use reminders, language switching, optional background music, offline caching, and installable PWA metadata. The Chinese product name is 专注格.
 
 ## Run
 
@@ -22,6 +22,7 @@ Service workers only run on secure origins or localhost. Use `http://127.0.0.1:5
 - Difficulty: `Medium`
 - Countdown: `35s`
 - Language: English, switchable from the globe button beside the title
+- Healthy-use reminder: `10` minutes
 - Theme: follows the system light or dark theme
 - Options are saved in cookies.
 - PWA metadata is provided through `manifest.webmanifest`.
@@ -32,6 +33,7 @@ Service workers only run on secure origins or localhost. Use `http://127.0.0.1:5
 - Grid sizes: `3x3`, `4x4`, `5x5`, `6x6`
 - Difficulty levels: `Easy`, `Medium`, `Hard`, `Expert`
 - Countdown seconds: custom value from `3` to `300`
+- Healthy-use reminder: `5`, `10`, `15`, `20` minutes, or `Off`
 - Tutorial: `Skip tutorial next time` can be toggled in settings or after completing the tutorial
 - Settings are shown as a side drawer on narrow screens and landscape phone layouts.
 
@@ -49,6 +51,10 @@ Service workers only run on secure origins or localhost. Use `http://127.0.0.1:5
 - Click outside the grid to pause; tap the pause mask to resume.
 - A quick accidental double-click on the last correct number is ignored.
 - Finished or timed-out games show a result dialog. Closing it leaves a mask on the grid; tapping the mask starts a new game.
+- Continuous timed play is tracked across completed and timed-out rounds.
+- When the healthy-use reminder threshold is reached, the result dialog suggests a 2-minute break.
+- `Start break` shows a break countdown on the grid mask. The grid cannot start a new game until the break completes.
+- `Continue training` or closing the reminder delays the next reminder by 5 minutes.
 - The music button toggles the CC0 background track. The off state shows a red circle-slash indicator.
 
 ## Grid Generation
@@ -118,6 +124,8 @@ The page includes a bilingual anti-addiction and disclaimer notice:
 
 - Focus Grid / 专注格 is intended for short attention-training sessions.
 - Users should avoid long continuous sessions and take regular breaks.
+- The app includes a configurable healthy-use reminder, enabled by default at 10 minutes.
+- The reminder offers a 2-minute break and allows a soft 5-minute snooze by continuing training.
 - Users should stop if they feel eye strain, dizziness, headache, anxiety, or other discomfort.
 - Users should not use the game while driving, cycling, operating machinery, walking in unsafe environments, or in situations that require continuous attention to their surroundings.
 - Continued use means the user has read and accepted the notice and disclaimer.

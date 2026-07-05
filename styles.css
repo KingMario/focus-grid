@@ -470,6 +470,14 @@ h1 {
   color: var(--on-accent);
 }
 
+.health-reminder-control {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.health-reminder-control button:last-child {
+  grid-column: 1 / -1;
+}
+
 .seconds-field input {
   width: 100%;
   min-height: 44px;
@@ -895,6 +903,34 @@ dd {
   border: 1px solid var(--border-soft);
   border-radius: 8px;
   background: var(--panel-muted);
+}
+
+.health-break-prompt {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.health-break-prompt[hidden] {
+  display: none;
+}
+
+.health-break-prompt p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.health-break-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.health-break-button {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 12px;
 }
 
 .site-footer {

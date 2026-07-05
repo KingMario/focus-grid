@@ -214,6 +214,44 @@
           </label>
 
           <div class="control-group">
+            <div class="control-label" data-i18n="healthReminder">
+              Healthy reminder
+            </div>
+            <div
+              class="segmented health-reminder-control"
+              role="radiogroup"
+              aria-label="Healthy reminder options"
+              data-i18n-aria="healthReminderOptions"
+            >
+              <button type="button" data-health-reminder="5" role="radio">
+                5m
+              </button>
+              <button
+                type="button"
+                data-health-reminder="10"
+                role="radio"
+                aria-checked="true"
+              >
+                10m
+              </button>
+              <button type="button" data-health-reminder="15" role="radio">
+                15m
+              </button>
+              <button type="button" data-health-reminder="20" role="radio">
+                20m
+              </button>
+              <button
+                type="button"
+                data-health-reminder="0"
+                role="radio"
+                data-i18n="reminderOff"
+              >
+                Off
+              </button>
+            </div>
+          </div>
+
+          <div class="control-group">
             <div class="control-label" data-i18n="grid">Grid</div>
             <div
               class="segmented"
@@ -421,18 +459,20 @@
           Use Focus Grid / 专注格 as a short attention-training game. Avoid long
           continuous sessions, take regular breaks, and stop if you feel eye
           strain, dizziness, headache, anxiety, or other discomfort. This game
-          is not a medical, diagnostic, or treatment tool. Do not use it while
-          driving, cycling, operating machinery, walking in unsafe environments,
-          or in any situation that requires continuous attention to your
-          surroundings. By continuing to use Focus Grid / 专注格, you
-          acknowledge that you have read and accepted this notice and
-          disclaimer.
+          includes a configurable healthy-use reminder for short breaks during
+          continuous play. This game is not a medical, diagnostic, or treatment
+          tool. Do not use it while driving, cycling, operating machinery,
+          walking in unsafe environments, or in any situation that requires
+          continuous attention to your surroundings. By continuing to use Focus
+          Grid / 专注格, you acknowledge that you have read and accepted this
+          notice and disclaimer.
         </p>
         <p lang="zh-CN">
           专注格仅作为短时专注力训练小游戏使用。请避免长时间连续训练，合理休息；
-          如出现眼部疲劳、头晕、头痛、焦虑或其他不适，请立即停止使用。本游戏不构成
-          医疗、诊断或治疗建议。请勿在驾驶、骑行、操作机械、处于不安全步行环境，
-          或任何需要持续关注周围环境的场景中使用。继续使用专注格即表示你已阅读并接受本提示与免责声明。
+          如出现眼部疲劳、头晕、头痛、焦虑或其他不适，请立即停止使用。游戏内提供可配置的健康提醒，
+          用于在连续训练中提示短时休息。本游戏不构成医疗、诊断或治疗建议。请勿在驾驶、骑行、
+          操作机械、处于不安全步行环境，或任何需要持续关注周围环境的场景中使用。
+          继续使用专注格即表示你已阅读并接受本提示与免责声明。
         </p>
         <p lang="zh-CN">
           未成年人应在监护人指导下使用。训练成绩只反映当前游戏表现，不代表医学评估、
@@ -494,6 +534,31 @@
         <p id="resultMessage"></p>
         <div class="result-badge" id="resultBadge" hidden></div>
         <dl class="result-stats" id="resultStats"></dl>
+        <section class="health-break-prompt" id="healthBreakPrompt" hidden>
+          <p id="healthBreakText" data-i18n="healthBreakPrompt">
+            You have been training for a while. To reduce eye strain and
+            overuse, take a 2-minute break before continuing. Continuing means
+            you understand and accept this healthy-use notice.
+          </p>
+          <div class="health-break-actions">
+            <button
+              class="primary-button health-break-button"
+              type="button"
+              id="startBreakButton"
+              data-i18n="startBreak"
+            >
+              Start break
+            </button>
+            <button
+              class="ghost-button health-break-button"
+              type="button"
+              id="continueTrainingButton"
+              data-i18n="continueTraining"
+            >
+              Continue training
+            </button>
+          </div>
+        </section>
       </div>
     </dialog>
 

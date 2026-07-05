@@ -34,6 +34,10 @@ const translations = {
     hard: "Hard",
     expert: "Expert",
     countdownSeconds: "Countdown seconds",
+    healthReminder: "Healthy reminder",
+    healthReminderOptions: "Healthy reminder options",
+    reminderOff: "Off",
+    reminderMinutes: "{minutes}m",
     challenge: "Challenge",
     strong: "Strong",
     trainingLine: "{grid} {difficulty} targets",
@@ -53,6 +57,10 @@ const translations = {
     newGameText: "Tap here for a new game",
     pauseTitle: "Paused",
     pauseText: "Tap here to resume",
+    breakTitle: "Take a break",
+    breakText: "Rest for {time} before the next round",
+    breakCompleteTitle: "Break complete",
+    breakCompleteText: "Tap here to start a new game",
     finishedTitle: "Finished",
     timeoutTitle: "Time Up",
     finishedMessage: "You completed the full sequence.",
@@ -67,6 +75,10 @@ const translations = {
     statProgress: "Progress",
     statErrors: "Errors",
     statAvgStep: "Avg step",
+    healthBreakPrompt:
+      "You have been training for a while. To reduce eye strain and overuse, take a 2-minute break before continuing. Continuing means you understand and accept this healthy-use notice.",
+    startBreak: "Start break",
+    continueTraining: "Continue training",
   },
   zh: {
     appTitle: "专注格",
@@ -96,6 +108,10 @@ const translations = {
     hard: "难",
     expert: "最难",
     countdownSeconds: "倒计时秒数",
+    healthReminder: "健康提醒",
+    healthReminderOptions: "健康提醒选项",
+    reminderOff: "关闭",
+    reminderMinutes: "{minutes} 分钟",
     challenge: "挑战",
     strong: "优秀",
     trainingLine: "{grid} {difficulty}训练目标",
@@ -114,6 +130,10 @@ const translations = {
     newGameText: "点击这里开始新游戏",
     pauseTitle: "已暂停",
     pauseText: "点击这里继续",
+    breakTitle: "休息一下",
+    breakText: "休息 {time} 后再开始下一局",
+    breakCompleteTitle: "休息完成",
+    breakCompleteText: "点击这里开始新游戏",
     finishedTitle: "完成",
     timeoutTitle: "超时",
     finishedMessage: "你已完成完整序列。",
@@ -128,6 +148,10 @@ const translations = {
     statProgress: "进度",
     statErrors: "错误",
     statAvgStep: "平均每步",
+    healthBreakPrompt:
+      "你已经连续训练了一段时间。为了避免眼部疲劳和过度使用，建议休息 2 分钟后再继续。继续使用即表示你理解并接受该健康使用提示。",
+    startBreak: "开始休息",
+    continueTraining: "继续训练",
   },
 };
 
@@ -149,6 +173,9 @@ const accidentalDoubleClickMs = 650;
 const previewMs = 3000;
 const balancedShuffleAttempts = 600;
 const maxAdjacentSequentialPairs = 3;
+const healthReminderOptions = [0, 5, 10, 15, 20];
+const healthBreakMs = 2 * 60 * 1000;
+const continueTrainingSnoozeMs = 5 * 60 * 1000;
 const preferencesCookieName = "focusGridOptions";
 const tutorialDismissedCookieName = "focusGridTutorialDismissed";
 const preferencesMaxAge = 60 * 60 * 24 * 365;
@@ -160,6 +187,11 @@ const state = {
   size: 5,
   difficulty: "medium",
   durationSeconds: 35,
+  healthReminderMinutes: 10,
+  sessionTrainingMs: 0,
+  nextHealthReminderMs: 10 * 60 * 1000,
+  breakEndsAt: 0,
+  breakIntervalId: 0,
   remainingMs: 35000,
   status: "idle",
   previewTimeoutId: 0,
@@ -207,6 +239,10 @@ const elements = {
   resultMessage: document.querySelector("#resultMessage"),
   resultBadge: document.querySelector("#resultBadge"),
   resultStats: document.querySelector("#resultStats"),
+  healthBreakPrompt: document.querySelector("#healthBreakPrompt"),
+  healthBreakText: document.querySelector("#healthBreakText"),
+  startBreakButton: document.querySelector("#startBreakButton"),
+  continueTrainingButton: document.querySelector("#continueTrainingButton"),
   closeResultButton: document.querySelector("#closeResultButton"),
   timerItem: document.querySelector(".timer-item"),
   benchmarkTitle: document.querySelector("#benchmarkTitle"),
@@ -223,6 +259,9 @@ const elements = {
   languageButtons: [...document.querySelectorAll("[data-language]")],
   sizeButtons: [...document.querySelectorAll("[data-size]")],
   difficultyButtons: [...document.querySelectorAll("[data-difficulty]")],
+  healthReminderButtons: [
+    ...document.querySelectorAll("[data-health-reminder]"),
+  ],
 };
 
 function t(key, values = {}) {
@@ -260,6 +299,7 @@ function savePreferences() {
     size: state.size,
     difficulty: state.difficulty,
     durationSeconds: state.durationSeconds,
+    healthReminderMinutes: state.healthReminderMinutes,
   };
 
   document.cookie = `${preferencesCookieName}=${encodeURIComponent(
@@ -304,8 +344,24 @@ function isValidDifficulty(difficulty) {
   return Object.hasOwn(difficultySeconds[state.size], difficulty);
 }
 
+function isValidHealthReminder(minutes) {
+  return healthReminderOptions.includes(Number(minutes));
+}
+
 function clampSeconds(seconds) {
   return Math.min(300, Math.max(3, Number(seconds) || 3));
+}
+
+function getHealthReminderMs() {
+  if (state.healthReminderMinutes <= 0) {
+    return Infinity;
+  }
+
+  return state.healthReminderMinutes * 60 * 1000;
+}
+
+function resetHealthReminderSchedule() {
+  state.nextHealthReminderMs = state.sessionTrainingMs + getHealthReminderMs();
 }
 
 function loadPreferences() {
@@ -331,6 +387,12 @@ function loadPreferences() {
     applyRecommendedSeconds();
   }
 
+  if (isValidHealthReminder(preferences.healthReminderMinutes)) {
+    state.healthReminderMinutes = Number(preferences.healthReminderMinutes);
+  }
+
+  resetHealthReminderSchedule();
+
   elements.secondsInput.value = String(state.durationSeconds);
   elements.dismissTutorialInput.checked = state.tutorialDismissed;
   updatePressedState(elements.languageButtons, state.language, "language");
@@ -339,6 +401,11 @@ function loadPreferences() {
     elements.difficultyButtons,
     state.difficulty,
     "difficulty",
+  );
+  updatePressedState(
+    elements.healthReminderButtons,
+    state.healthReminderMinutes,
+    "healthReminder",
   );
 }
 
@@ -492,16 +559,27 @@ function updatePressedState(buttons, activeValue, dataKey) {
   });
 }
 
+function updateHealthReminderLabels() {
+  elements.healthReminderButtons.forEach((button) => {
+    const minutes = Number(button.dataset.healthReminder);
+    button.textContent =
+      minutes === 0 ? t("reminderOff") : t("reminderMinutes", { minutes });
+  });
+}
+
 function updateStatus() {
   const completed = state.nextNumber - 1;
   const total = state.size * state.size;
   const warningLimit = state.durationSeconds * 1000 * 0.2;
   const isTutorial =
     state.status === "tutorial" || state.status === "tutorialComplete";
+  const isBreak = state.status === "break";
 
-  elements.timerText.textContent = isTutorial
-    ? "--:--"
-    : formatTime(state.remainingMs);
+  elements.timerText.textContent = isBreak
+    ? formatTime(state.breakEndsAt - Date.now())
+    : isTutorial
+      ? "--:--"
+      : formatTime(state.remainingMs);
   elements.progressText.textContent = `${completed}/${total}`;
   elements.errorText.textContent = `× ${state.errors}`;
   elements.errorText.hidden = state.errors === 0;
@@ -510,13 +588,18 @@ function updateStatus() {
 
   elements.timerItem.classList.toggle(
     "warning",
-    state.remainingMs <= warningLimit,
+    !isBreak && state.remainingMs <= warningLimit,
   );
-  elements.timerItem.classList.toggle("danger", state.remainingMs <= 10000);
+  elements.timerItem.classList.toggle(
+    "danger",
+    !isBreak && state.remainingMs <= 10000,
+  );
   elements.pauseMask.hidden =
     state.status !== "paused" &&
     state.status !== "idle" &&
     state.status !== "preview" &&
+    state.status !== "break" &&
+    state.status !== "breakComplete" &&
     state.status !== "tutorialComplete" &&
     state.status !== "success" &&
     state.status !== "timeout";
@@ -525,7 +608,7 @@ function updateStatus() {
     state.status === "preview",
   );
   elements.pauseMask.tabIndex =
-    elements.pauseMask.hidden || state.status === "preview" ? -1 : 0;
+    elements.pauseMask.hidden || state.status === "preview" || isBreak ? -1 : 0;
   updateMaskText();
 }
 
@@ -554,6 +637,29 @@ function updateMaskText() {
       `${t("startTitle")}. ${t("startText")}. ${t("startHelp")}`,
     );
     elements.pauseHelp.hidden = false;
+    return;
+  }
+
+  if (state.status === "break") {
+    const time = formatTime(state.breakEndsAt - Date.now());
+    elements.pauseTitle.textContent = t("breakTitle");
+    elements.pauseText.textContent = t("breakText", { time });
+    elements.pauseMask.setAttribute(
+      "aria-label",
+      `${t("breakTitle")}. ${t("breakText", { time })}`,
+    );
+    elements.pauseHelp.hidden = true;
+    return;
+  }
+
+  if (state.status === "breakComplete") {
+    elements.pauseTitle.textContent = t("breakCompleteTitle");
+    elements.pauseText.textContent = t("breakCompleteText");
+    elements.pauseMask.setAttribute(
+      "aria-label",
+      `${t("breakCompleteTitle")}. ${t("breakCompleteText")}`,
+    );
+    elements.pauseHelp.hidden = true;
     return;
   }
 
@@ -603,6 +709,7 @@ function applyTranslations() {
       element.setAttribute("title", label);
     }
   });
+  updateHealthReminderLabels();
   updateMaskText();
 }
 
@@ -742,6 +849,72 @@ function stopMusic({ rewind = false } = {}) {
   }
 }
 
+function clearHealthBreakTimer() {
+  window.clearInterval(state.breakIntervalId);
+  state.breakIntervalId = 0;
+}
+
+function shouldShowHealthBreakPrompt() {
+  return (
+    Number.isFinite(state.nextHealthReminderMs) &&
+    state.sessionTrainingMs >= state.nextHealthReminderMs
+  );
+}
+
+function hideHealthBreakPrompt() {
+  elements.healthBreakPrompt.hidden = true;
+}
+
+function completeHealthBreak() {
+  clearHealthBreakTimer();
+  state.status = "breakComplete";
+  state.sessionTrainingMs = 0;
+  resetHealthReminderSchedule();
+  updateStatus();
+}
+
+function updateHealthBreakCountdown() {
+  if (state.status !== "break") {
+    clearHealthBreakTimer();
+    return;
+  }
+
+  if (Date.now() >= state.breakEndsAt) {
+    completeHealthBreak();
+    return;
+  }
+
+  updateStatus();
+}
+
+function startHealthBreak() {
+  hideHealthBreakPrompt();
+  state.status = "break";
+
+  if (elements.resultDialog.open) {
+    elements.resultDialog.close();
+  }
+
+  clearConfetti();
+  stopMusic({ rewind: true });
+  state.breakEndsAt = Date.now() + healthBreakMs;
+  clearHealthBreakTimer();
+  state.breakIntervalId = window.setInterval(updateHealthBreakCountdown, 250);
+  document.body.classList.remove("game-focus-scroll");
+  renderGrid();
+  updateStatus();
+}
+
+function continueTrainingAfterHealthPrompt() {
+  state.nextHealthReminderMs =
+    state.sessionTrainingMs + continueTrainingSnoozeMs;
+  hideHealthBreakPrompt();
+
+  if (elements.resultDialog.open) {
+    elements.resultDialog.close();
+  }
+}
+
 function isMusicPlaybackStatus() {
   return state.status === "running" || state.status === "tutorial";
 }
@@ -859,6 +1032,8 @@ function renderGrid() {
     button.disabled =
       state.status === "success" ||
       state.status === "timeout" ||
+      state.status === "break" ||
+      state.status === "breakComplete" ||
       state.status === "tutorialComplete";
     button.classList.toggle(
       "tutorial-target",
@@ -878,6 +1053,7 @@ function resetRound({ keepGrid = false } = {}) {
   cancelAnimationFrame(state.rafId);
   window.clearTimeout(state.previewTimeoutId);
   window.clearInterval(state.previewIntervalId);
+  clearHealthBreakTimer();
   document.body.classList.remove("game-focus-scroll");
   const useTutorial = shouldShowTutorial();
   state.status = useTutorial ? "tutorial" : "preview";
@@ -887,6 +1063,7 @@ function resetRound({ keepGrid = false } = {}) {
   state.startedAt = 0;
   state.pausedAt = 0;
   state.totalPausedMs = 0;
+  state.breakEndsAt = 0;
   state.lastCorrectNumber = 0;
   state.lastCorrectAt = 0;
   resetTimerFromSettings();
@@ -1054,6 +1231,7 @@ function finishGame(result) {
   const total = state.size * state.size;
   const completed = Math.min(state.nextNumber - 1, total);
   const averageMs = completed > 0 ? elapsedMs / completed : 0;
+  state.sessionTrainingMs += elapsedMs;
 
   state.status = result;
   document.body.classList.remove("game-focus-scroll");
@@ -1067,6 +1245,8 @@ function finishGame(result) {
     result === "success" ? t("finishedMessage") : t("timeoutMessage");
   elements.resultBadge.hidden = true;
   elements.resultBadge.textContent = "";
+  elements.healthBreakPrompt.hidden = !shouldShowHealthBreakPrompt();
+  elements.healthBreakText.textContent = t("healthBreakPrompt");
   let confettiLevel = state.errors === 0 ? "strong" : "";
 
   if (result === "success") {
@@ -1147,6 +1327,17 @@ function selectLanguage(language) {
   closeLanguageMenu();
 }
 
+function selectHealthReminder(minutes) {
+  state.healthReminderMinutes = Number(minutes);
+  updatePressedState(
+    elements.healthReminderButtons,
+    state.healthReminderMinutes,
+    "healthReminder",
+  );
+  resetHealthReminderSchedule();
+  savePreferences();
+}
+
 function handleOutsidePointerDown(event) {
   if (state.status !== "running") {
     return;
@@ -1189,6 +1380,15 @@ function clearGridTapFeedback() {
 }
 
 function activatePauseMask() {
+  if (state.status === "break") {
+    return;
+  }
+
+  if (state.status === "breakComplete") {
+    resetRound();
+    return;
+  }
+
   if (state.status === "tutorialComplete") {
     resetRound();
     return;
@@ -1272,6 +1472,12 @@ function bindEvents() {
     );
   });
 
+  elements.healthReminderButtons.forEach((button) => {
+    button.addEventListener("click", () =>
+      selectHealthReminder(button.dataset.healthReminder),
+    );
+  });
+
   elements.secondsInput.addEventListener("change", () => {
     const nextSeconds = clampSeconds(elements.secondsInput.value);
     state.durationSeconds = nextSeconds;
@@ -1284,8 +1490,26 @@ function bindEvents() {
     setTutorialDismissed(elements.dismissTutorialInput.checked);
   });
 
+  elements.startBreakButton.addEventListener("click", startHealthBreak);
+  elements.continueTrainingButton.addEventListener(
+    "click",
+    continueTrainingAfterHealthPrompt,
+  );
+
   elements.closeResultButton.addEventListener("click", () => {
+    if (!elements.healthBreakPrompt.hidden) {
+      continueTrainingAfterHealthPrompt();
+      return;
+    }
+
     elements.resultDialog.close();
+  });
+  elements.resultDialog.addEventListener("close", () => {
+    if (!elements.healthBreakPrompt.hidden && state.status !== "break") {
+      state.nextHealthReminderMs =
+        state.sessionTrainingMs + continueTrainingSnoozeMs;
+      hideHealthBreakPrompt();
+    }
   });
 
   window.addEventListener("keydown", (event) => {
