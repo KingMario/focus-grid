@@ -33,7 +33,7 @@ Service workers only run on secure origins or localhost. Use `http://127.0.0.1:5
 - Grid sizes: `3x3`, `4x4`, `5x5`, `6x6`
 - Difficulty levels: `Easy`, `Medium`, `Hard`, `Expert`
 - Countdown seconds: custom value from `3` to `300`
-- Healthy-use reminder: `5`, `10`, `15`, `20` minutes, or `Off`
+- Healthy-use reminder: `5`, `10`, `15`, `20` minutes, or `No reminder`
 - Tutorial: `Skip tutorial next time` can be toggled in settings or after completing the tutorial
 - Settings are shown as a side drawer on narrow screens and landscape phone layouts.
 
