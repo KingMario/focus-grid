@@ -1,4 +1,4 @@
-const CACHE_NAME = "focus-grid-v10";
+const CACHE_NAME = "focus-grid-v11";
 const APP_SHELL_URLS = [
   "./",
   "./index.html",
@@ -12,6 +12,7 @@ const APP_SHELL_URLS = [
   "./assets/icon-512.png",
   "./assets/og-image.svg",
   "./assets/free-run.mp3",
+  "./assets/hurrah.mp3",
 ];
 
 self.addEventListener("install", (event) => {

@@ -208,6 +208,7 @@ const state = {
   languageMenuOpen: false,
   musicEnabled: true,
   musicAudio: null,
+  successAudio: null,
   tutorialDismissed: false,
   tutorialCompletedThisSession: false,
   settingsReturnFocus: null,
@@ -265,10 +266,9 @@ const elements = {
 };
 
 function t(key, values = {}) {
-  return translations[state.language][key].replaceAll(
-    /\{([^}]+)\}/g,
-    (_, name) => values[name] ?? "",
-  );
+  const text = translations[state.language][key] ?? translations.en[key] ?? key;
+
+  return text.replaceAll(/\{([^}]+)\}/g, (_, name) => values[name] ?? "");
 }
 
 function getSavedPreferences() {
@@ -837,6 +837,27 @@ function ensureMusicAudio() {
   return state.musicAudio;
 }
 
+function ensureSuccessAudio() {
+  if (state.successAudio) {
+    return state.successAudio;
+  }
+
+  state.successAudio = new Audio("assets/hurrah.mp3");
+  state.successAudio.volume = 0.75;
+  state.successAudio.preload = "auto";
+  return state.successAudio;
+}
+
+function playSuccessAudio() {
+  if (!state.musicEnabled) {
+    return;
+  }
+
+  const audio = ensureSuccessAudio();
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
+}
+
 function stopMusic({ rewind = false } = {}) {
   if (!state.musicAudio) {
     return;
@@ -1292,6 +1313,10 @@ function finishGame(result) {
 
   if (result === "success" && confettiLevel) {
     burstConfetti(confettiLevel);
+  }
+
+  if (result === "success") {
+    playSuccessAudio();
   }
 }
 

@@ -55,7 +55,7 @@ Service workers only run on secure origins or localhost. Use `http://127.0.0.1:5
 - When the healthy-use reminder threshold is reached, the result dialog suggests a 2-minute break.
 - `Start break` shows a break countdown on the grid mask. The grid cannot start a new game until the break completes.
 - `Continue training` or closing the reminder delays the next reminder by 5 minutes.
-- The music button toggles the CC0 background track. The off state shows a red circle-slash indicator.
+- The music button toggles the CC0 background track and the success applause effect. The off state shows a red circle-slash indicator.
 
 ## Grid Generation
 
@@ -103,7 +103,7 @@ The app includes installable PWA metadata and a service worker:
 
 - `manifest.webmanifest` defines the app name, start URL, standalone display mode, theme color, and install icons.
 - `assets/icon.svg`, `assets/icon-180.png`, `assets/icon-192.png`, and `assets/icon-512.png` provide the install icons.
-- `sw.js` caches the app shell, icons, OG image, favicon, and background music.
+- `sw.js` caches the app shell, icons, OG image, favicon, background music, and success applause effect.
 - Navigation requests fall back to the cached `index.html` when offline.
 - On Android Chrome, the hosted page can be installed from the browser menu or install prompt.
 - On iOS Safari, use Share > Add to Home Screen to create the home-screen app link.
@@ -140,3 +140,5 @@ MIT License. See `LICENSE`.
 ## Music Credit
 
 Background music: [`Free Run [8 bit(ish)]`](https://opengameart.org/content/free-run-8-bitish) by TAD, released as CC0 on OpenGameArt.
+
+Success applause effect: `assets/hurrah.mp3`, copied from the original Mario Studio iMatchstick project.
