@@ -217,6 +217,8 @@ const state = {
   tapFeedbackCell: null,
 };
 
+let shouldReloadForServiceWorkerUpdate = false;
+
 const elements = {
   gridBoard: document.querySelector("#gridBoard"),
   gridWrap: document.querySelector("#gridWrap"),
@@ -1031,7 +1033,35 @@ function registerServiceWorker() {
   }
 
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+    const wasControlled = Boolean(navigator.serviceWorker.controller);
+
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!shouldReloadForServiceWorkerUpdate || !wasControlled) {
+        return;
+      }
+
+      shouldReloadForServiceWorkerUpdate = false;
+      window.location.reload();
+    });
+
+    navigator.serviceWorker
+      .register("sw.js")
+      .then((registration) => {
+        if (wasControlled) {
+          shouldReloadForServiceWorkerUpdate = true;
+          registration.update().catch(() => {});
+        }
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState !== "visible") {
+            return;
+          }
+
+          shouldReloadForServiceWorkerUpdate = true;
+          registration.update().catch(() => {});
+        });
+      })
+      .catch(() => {});
   });
 }
 
